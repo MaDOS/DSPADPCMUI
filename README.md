@@ -8,11 +8,13 @@ This will convert nearly any wav file to a dsp convertable 16 bit 11025 bitrate 
 ---
 
 **Installation:**
-This programm has to be in one directory with dspadpcm.exe, dsptool.dll and soundfile.dll found in the Gamecube SDK. It also needs NAudio.dll which it should ship with.
+This programm has to be in one directory with dspadpcm.exe, dsptool.dll and soundfile.dll found in the Gamecube SDK. It also needs a custom NAudio.dll which it should ship with.
 
 ---
 
 **Usage:**
 Browse for an input *.wav file and specify and out *.dsp file then click convert. Done.
+
+---
 
 Should you encounter any bugs please contact me on github. (https://github.com/MaDOS/DSPADPCMUI)
