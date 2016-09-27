@@ -70,20 +70,19 @@ namespace DSPADPCMUI
 
         private void btnConvert_Click(object sender, EventArgs e)
         {
-            //logfile output
-            string output = "";
+            FileInfo logFile = new FileInfo($@"{appPath}\log.txt");
+            StreamWriter sw = new StreamWriter(new FileStream(logFile.FullName, FileMode.Create));
 
-            output += "Initalizing...\n\r";
+            sw.WriteLine("Initalizing...");
 
             //Handling some temporary file stuff because windows console and spaces suck and we want to be able to convert files from anywhere to anywhere
             FileInfo tempWav = new FileInfo($@"{appPath}\{inputFile.Name.Replace(inputFile.Extension, "")}_16_1.wav");
-            FileInfo logFile = new FileInfo($@"{appPath}\log.txt");
             FileInfo tempDsp = new FileInfo($@"{appPath}\{tempWav.Name.Replace("_16_1.wav", ".dsp")}");
             
             //used for constructing the fixed header
             byte[] fixedWavHeader = new byte[44];
 
-            output += "Reading and converting *.wav file\n\r";
+            sw.WriteLine("Reading and converting *.wav file");
             WaveStream converter = WaveFormatConversionStream.CreatePcmStream(new WaveFileReader(this.inputFile.FullName));
             WaveFormat target = new WaveFormat(11025, 16, 1);
             WaveFormatConversionStream cs = new WaveFormatConversionStream(target, converter);
@@ -95,7 +94,7 @@ namespace DSPADPCMUI
             //Now we have a convertable wav file in memory except for a 46 byte file header (naudio always writes these) which will crash DSPADPCM 
             //the two extra bytes are included right before the data subchunck which is located at byte 25h (byte 37d)
 
-            output += "|-> fixing wav header\n\r";
+            sw.WriteLine("|-> fixing wav header");
 
             BinaryReader br = new BinaryReader(ms);
             for (int i = 0; i < 44; i++)
@@ -134,7 +133,7 @@ namespace DSPADPCMUI
                 fixedWavHeader[i] = br.ReadByte();
             }
 
-            output += "Writing convertible wav to disk\n\r";
+            sw.WriteLine("Writing convertible wav to disk");
 
             //Now we are ready to write our converted and fixed wav to the disk
             BinaryWriter bw = new BinaryWriter(new FileStream(tempWav.FullName, FileMode.Create));
@@ -146,7 +145,7 @@ namespace DSPADPCMUI
             converter.Close();
             cs.Close();
 
-            output += $"Starting DSPADPCM -E\n\r";
+            sw.WriteLine("Starting DSPADPCM -E ...");
 
             Process p = new Process();
             p.StartInfo.UseShellExecute = false;
@@ -155,19 +154,17 @@ namespace DSPADPCMUI
             p.StartInfo.Arguments = $@"-E {tempWav.Name} {tempDsp.Name}";
             p.Start();
 
-            output += p.StandardOutput.ReadToEnd();
+            sw.Write(p.StandardOutput.ReadToEnd());
             p.WaitForExit();
 
-            output += "Cleaning up\n\r";
+            sw.WriteLine("Cleaning up");
 
             File.Copy(tempDsp.FullName, outputFile.FullName, true);
             File.Delete(tempDsp.FullName);
             File.Delete(tempWav.FullName);
 
-            output += "Done. Writing logfile\n\r";
-
-            StreamWriter sw = new StreamWriter(new FileStream(logFile.FullName, FileMode.Create));
-            sw.Write(output);
+            sw.WriteLine("Done.");
+            
             sw.Close();
 
             MessageBox.Show("Done!");
