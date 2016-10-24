@@ -13,7 +13,7 @@ This programm has to be in one directory with dspadpcm.exe, dsptool.dll and soun
 ---
 
 **Usage:**
-Browse for an input *.wav file and specify and out *.dsp file then click convert. Done.
+Browse for an input *.wav file and specify an out *.dsp file then click convert. Done.
 
 ---
 
